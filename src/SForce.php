@@ -15,6 +15,7 @@ use Xhezairi\SForce\Exception\SalesforceException;
 
 /**
  * The Salesforce REST API PHP Wrapper
+ * https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_what_is_rest_api.htm
  *
  * This class connects to the Salesforce REST API and performs actions on that API
  * @link https://github.com/jahumes/salesforce-rest-api-php-wrapper
@@ -33,6 +34,7 @@ class SForce
      * @var string
      */
     protected $clientId;
+
     /**
      * @var string
      */
@@ -43,6 +45,7 @@ class SForce
 
     /** @var string Base URI will be used in conjunction with a REST resource endpoint */
     private $baseUrl;
+
     /**
      * @var mixed
      */
@@ -114,7 +117,7 @@ class SForce
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getClientId(): string
     {
@@ -122,7 +125,7 @@ class SForce
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getClientSecret(): string
     {
@@ -130,7 +133,7 @@ class SForce
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getRedirectUrl(): string
     {
@@ -166,7 +169,7 @@ class SForce
     /**
      * Get a list of all the API Versions for the instance
      *
-     * @return mixed
+     * @return array
      * @throws ClientExceptionInterface
      */
     public function getAPIVersions()
@@ -177,7 +180,7 @@ class SForce
     /**
      * Gets a list of all the available REST endpoints
      *
-     * @return mixed
+     * @return array
      * @throws ClientExceptionInterface
      */
     public function getAvailableResources()
@@ -188,7 +191,7 @@ class SForce
     /**
      * Lists the limits for the organization.
      *
-     * @return mixed
+     * @return array
      * @throws ClientExceptionInterface
      */
     public function getOrgLimits()
@@ -197,11 +200,11 @@ class SForce
     }
 
     /**
-     * @param $query
-     * @return mixed
+     * @param  string  $query
+     * @return array
      * @throws ClientExceptionInterface
      */
-    public function getQueryFromUrl($query)
+    public function getQueryFromUrl(string $query)
     {
         return json_decode((string) $this->http->get($this->getBaseUrl($query))->getBody(), true);
     }
@@ -209,7 +212,7 @@ class SForce
     /**
      * Handle Authorization Header
      */
-    private function handleAuthorizationHeader()
+    private function handleAuthorizationHeader(): callable
     {
         return function (callable $handler) {
             return function (RequestInterface $request, array $options) use ($handler) {
@@ -243,7 +246,7 @@ class SForce
      */
     public function request(string $method, string $url, array $options)
     {
-        $request = $this->http->request($method, $this->api->getBaseUrl($url), $options);
+        $request = $this->http->request($method, $this->getBaseUrl($url), $options);
 
         if ( ! in_array($request->getStatusCode(), [200, 201])) {
             throw new SalesforceException(
@@ -255,10 +258,10 @@ class SForce
     }
 
     /**
-     * @param $property
+     * @param  string  $property
      * @return mixed
      */
-    public function __get($property)
+    public function __get(string $property)
     {
 //        if (array_key_exists($name, $this->_config)) {
 //            return $this->_config[$name];
@@ -272,11 +275,11 @@ class SForce
     }
 
     /**
-     * @param $property
-     * @param $value
+     * @param  string $property
+     * @param  mixed  $value
      * @return $this
      */
-    public function __set($property, $value)
+    public function __set(string $property, $value)
     {
         if (property_exists($this, $property)) {
             $this->$property = $value;

@@ -33,6 +33,7 @@ final class AuthOptions
      * defined by the client ID and client secret.
      *
      * @uses \Xhezairi\SForce\Authentication\WebServerAuthentication
+     * @link https://help.salesforce.com/articleView?id=remoteaccess_oauth_web_server_flow.htm&type=5
      */
     public const WEB_SERVER_FLOW = 'web_server';
 }

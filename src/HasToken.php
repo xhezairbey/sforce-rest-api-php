@@ -5,11 +5,12 @@ namespace Xhezairi\SForce;
 trait HasToken
 {
     /**
-     * @var
+     * @var string $accessToken
      */
     private $accessToken;
+
     /**
-     * @var mixed|string
+     * @var string $refreshToken
      */
     private $refreshToken;
 
@@ -24,7 +25,7 @@ trait HasToken
     /**
      * @param  string  $token
      */
-    public function setAccessToken(string $token)
+    public function setAccessToken(string $token): void
     {
         $this->accessToken = $token;
     }
@@ -40,7 +41,7 @@ trait HasToken
     /**
      * @param  string  $token
      */
-    public function setRefreshToken(string $token)
+    public function setRefreshToken(string $token): void
     {
         $this->refreshToken = $token;
     }

@@ -27,7 +27,7 @@ class WebServerAuthentication
     private $httpRequest;
 
     /**
-     * @var string
+     * @var SForce
      */
     private $api;
 
@@ -56,7 +56,7 @@ class WebServerAuthentication
      */
     public function getWebAuthorizationUrl(): string
     {
-        if ($this->api->getClientId() === null || $this->api->getInstanceUrl() === null) {
+        if (!$this->api->getClientId() || !$this->api->getInstanceUrl()) {
             throw new SalesforceException('Salesforce API: Missing Instance URL.');
         }
 
@@ -71,11 +71,11 @@ class WebServerAuthentication
     }
 
     /**
-     * @param $code
+     * @param string $code
      * @return array
      * @throws ClientExceptionInterface
      */
-    public function requestAccessToken($code): array
+    public function requestAccessToken(string $code): array
     {
         $response = $this->api->http->post(
             self::OAUTH_PATH.'/token',

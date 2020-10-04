@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xhezairi\SForce;
 
@@ -62,7 +60,7 @@ class SObject
         // Check if the If-Modified-Since header should be set
         if ($since !== null && $since instanceof DateTime) {
             $headers['IF-Modified-Since'] = $since->format('D, j M Y H:i:s e');
-        } elseif ($since !== null && ! $since instanceof DateTime) {
+        } elseif ($since !== null) {
             // If the $since flag has been set and is not a DateTime instance, throw an error
             throw new SalesforceException('To get object metadata for an object, you must provide a DateTime object');
         }
@@ -156,14 +154,14 @@ class SObject
     /**
      * Update or Insert
      *
-     * @param $objectName
-     * @param $field
-     * @param $id
+     * @param  string  $objectName
+     * @param  string  $field
+     * @param  string  $id
      * @param  array  $data
      * @return mixed
      * @throws ClientExceptionInterface|SalesforceException
      */
-    public function upsert($objectName, $field, $id, array $data)
+    public function upsert(string $objectName, string $field, string $id, array $data)
     {
         $url = $this->api->getBaseUrl(self::OBJECTS_PATH."{$objectName}/{$field}/{$id}");
         $request = $this->api->http->patch(

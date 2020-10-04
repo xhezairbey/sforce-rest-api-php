@@ -1,28 +1,43 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Xhezairi\SForce;
 
+use Psr\Http\Client\ClientExceptionInterface;
 use Xhezairi\SForce\Exception\SalesforceException;
 
 class SQuery
 {
-    public function __construct()
+    /**
+     * @var SForce
+     */
+    private $api;
+
+    /**
+     * SQuery constructor.
+     * @param  SForce  $api
+     */
+    public function __construct(SForce $api)
     {
+        $this->api = $api;
     }
 
-    public function query($query)
+    /**
+     * @param  string $query
+     * @return array
+     * @throws ClientExceptionInterface
+     */
+    public function query(string $query): array
     {
-        $url = "{$this->instance_url}/services/data/v39.0/query";
-        $request = $this->http->get($url, [
-            'headers' => [
-                'Authorization' => "OAuth {$this->accessToken}"
-            ],
-            'query' => [
-                'q' => $query
+        $request = $this->api->http->get(
+            $this->api->getBaseUrl('query'),
+            [
+                'query' => [
+                    'q' => $query,
+                ],
             ]
-        ]);
+        );
 
-        return json_decode($request->getBody(), true);
+        return json_decode((string)$request->getBody(), true);
     }
 
     /**
@@ -31,24 +46,26 @@ class SQuery
      * @param  string  $query  The query to perform
      * @param  bool  $all  Search through deleted and merged data as well
      * @param  bool  $explain  If the explain flag is set, it will return feedback on the query performance
-     * @return mixed
-     * @throws SalesforceException
+     * @return array
+     * @throws ClientExceptionInterface
      */
-    public function searchSOQL(string $query, $all = false, $explain = false)
+    public function searchSOQL(string $query, bool $all = false, bool $explain = false): array
     {
-        $search_data = [
+        $data = [
             'q' => $query,
         ];
 
         // If the explain flag is set, it will return feedback on the query performance
         if ($explain) {
-            $search_data['explain'] = $search_data['q'];
-            unset($search_data['q']);
+            $data['explain'] = $data['q'];
+            unset($data['q']);
         }
 
         // If all, search through deleted and merged data as well
         $path = $all ? 'queryAll/' : 'query/';
 
-        return $this->request($path, $search_data, self::METH_GET);
+        $response = $this->api->http->get($path, $data);
+
+        return json_decode((string)$response->getBody(), true);
     }
 }
