@@ -3,6 +3,7 @@
 namespace Xhezairi\SForce;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\MessageFormatter;
@@ -72,11 +73,6 @@ class SForce
     public $http;
 
     /**
-     * @var HandlerStack
-     */
-    private $stack;
-
-    /**
      * @var string[]
      */
     protected $headers = [
@@ -102,18 +98,7 @@ class SForce
         $this->instanceUrl = $config['instanceUrl'];
         $this->baseUrl = self::DATA_PATH.$this->apiVersion;
 
-        $this->stack = new HandlerStack();
-        $this->stack->setHandler(new CurlHandler());
-        $this->stack->push($this->handleAuthorizationHeader());
-//        $this->stack->push($this->handleLoggingRequestsMiddleware('{method} {uri} HTTP/{version} {req_body}'));
-//        $this->stack->push($this->handleLoggingRequestsMiddleware('RESPONSE: {code} - {res_body}'));
-
-        $this->http = new Client([
-            'debug' => true,
-            'handler' => $this->stack,
-            'headers' => $this->headers,
-            'base_uri' => $this->instanceUrl,
-        ]);
+        $this->http = $this->initHttpClient();
     }
 
     /**
@@ -210,6 +195,57 @@ class SForce
     }
 
     /**
+     * @param  string  $property
+     * @return mixed
+     */
+    public function __get(string $property)
+    {
+//        if (array_key_exists($name, $this->_config)) {
+//            return $this->_config[$name];
+//        }
+
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  string $property
+     * @param  mixed  $value
+     * @return $this
+     */
+    public function __set(string $property, $value)
+    {
+        if (property_exists($this, $property)) {
+            $this->$property = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Client
+     */
+    private function initHttpClient(): Client
+    {
+        $stack = new HandlerStack();
+        $stack->setHandler(new CurlHandler());
+        $stack->push($this->handleAuthorizationHeader());
+        $stack->push($this->handleLoggingRequestsMiddleware('{method} {uri} HTTP/{version} {req_body}'));
+        $stack->push($this->handleLoggingRequestsMiddleware('RESPONSE: {code} - {res_body}'));
+
+        return new Client(
+            [
+                'handler'  => $stack,
+                'headers'  => $this->headers,
+                'base_uri' => $this->instanceUrl,
+            ]
+        );
+    }
+
+    /**
      * Handle Authorization Header
      */
     private function handleAuthorizationHeader(): callable
@@ -242,49 +278,18 @@ class SForce
      * @param  string  $url
      * @param  array  $options
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException|SalesforceException
+     * @throws GuzzleException|SalesforceException
      */
     public function request(string $method, string $url, array $options)
     {
-        $request = $this->http->request($method, $this->getBaseUrl($url), $options);
+        $request = $this->http->request($method, $url, $options);
 
         if ( ! in_array($request->getStatusCode(), [200, 201])) {
             throw new SalesforceException(
-            "Error: call to URL {$url} failed with status {$request->getStatusCode()}, response: {$request->getReasonPhrase()}"
+                "Error: call to URL {$url} failed with status {$request->getStatusCode()}, response: {$request->getReasonPhrase()}"
             );
         }
 
         return json_decode((string)$request->getBody(), true);
-    }
-
-    /**
-     * @param  string  $property
-     * @return mixed
-     */
-    public function __get(string $property)
-    {
-//        if (array_key_exists($name, $this->_config)) {
-//            return $this->_config[$name];
-//        }
-
-        if (property_exists($this, $property)) {
-            return $this->$property;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param  string $property
-     * @param  mixed  $value
-     * @return $this
-     */
-    public function __set(string $property, $value)
-    {
-        if (property_exists($this, $property)) {
-            $this->$property = $value;
-        }
-
-        return $this;
     }
 }
