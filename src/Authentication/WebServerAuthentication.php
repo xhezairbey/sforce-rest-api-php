@@ -95,7 +95,7 @@ class WebServerAuthentication
 
     /**
      * @return array
-     * @throws ClientExceptionInterface
+     * @throws ClientExceptionInterface|SalesforceException
      */
     public function refreshAccessToken(): array
     {
@@ -111,6 +111,12 @@ class WebServerAuthentication
             )
         );
 
+        if ($response->getStatusCode() !== 200) {
+            throw new SalesforceException(
+                "Error: call to refresh token failed with status {$response->getStatusCode()}, response: {$response->getReasonPhrase()}"
+            );
+        }
+
         return json_decode((string)$response->getBody(), true);
     }
 
@@ -120,8 +126,7 @@ class WebServerAuthentication
     public function isAccessTokenValid(): bool
     {
         try {
-            $this->api->http->get($this->api->getBaseUrl());
-            return true;
+            return 200 === $this->api->http->get($this->api->getBaseUrl())->getStatusCode();
         } catch (ClientExceptionInterface $e) {
             return false;
         }

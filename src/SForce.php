@@ -272,24 +272,4 @@ class SForce
             new MessageFormatter($messageFormat) // '{req_body} - {res_body}'
         );
     }
-
-    /**
-     * @param  string  $method
-     * @param  string  $url
-     * @param  array  $options
-     * @return mixed
-     * @throws GuzzleException|SalesforceException
-     */
-    public function request(string $method, string $url, array $options)
-    {
-        $request = $this->http->request($method, $url, $options);
-
-        if ( ! in_array($request->getStatusCode(), [200, 201])) {
-            throw new SalesforceException(
-                "Error: call to URL {$url} failed with status {$request->getStatusCode()}, response: {$request->getReasonPhrase()}"
-            );
-        }
-
-        return json_decode((string)$request->getBody(), true);
-    }
 }
