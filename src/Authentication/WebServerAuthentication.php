@@ -9,13 +9,8 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Xhezairi\SForce\Exception\SalesforceException;
 use Xhezairi\SForce\SForce;
 
-class WebServerAuthentication
+class WebServerAuthentication extends AbstractAuthentication implements AuthorizationInterface
 {
-    /**
-     *
-     */
-    private const OAUTH_PATH = '/services/oauth2';
-
     /**
      * @var ClientInterface
      */
@@ -27,46 +22,23 @@ class WebServerAuthentication
     private $httpRequest;
 
     /**
-     * @var SForce
-     */
-    private $api;
-
-    /**
      * @var string[]
      */
     private $headers;
 
     /**
-     * WebServerFlowAuthentication constructor.
-     * @param  SForce  $api
-     */
-    public function __construct(SForce $api)
-    {
-        $this->api = $api;
-//        $this->headers = [
-//            'Accept'        => 'application/json',
-//            'Authorization' => 'Basic '.base64_encode($this->api->getClientId().':'.$this->api->getClientSecret()),
-//            'Content-Type'  => 'application/x-www-form-urlencoded; charset=utf-8',
-//        ];
-    }
-
-    /**
+     * @param  array  $options
      * @return string
-     * @throws SalesforceException
      */
-    public function getWebAuthorizationUrl(): string
+    public function getAuthorizationUrl(array $options = []): string
     {
-        if (!$this->api->getClientId() || !$this->api->getInstanceUrl()) {
-            throw new SalesforceException('Salesforce API: Missing Instance URL.');
-        }
-
         return $this->api->getInstanceUrl(self::OAUTH_PATH.'/authorize').'?'.http_build_query(
                 [
                     'client_id'     => $this->api->getClientId(),
                     'redirect_uri'  => $this->api->getRedirectUrl(),
                     'scope'         => $this->api->getScope(),
                     'response_type' => 'code',
-                ]
+                ] + $options
             );
     }
 
@@ -75,7 +47,7 @@ class WebServerAuthentication
      * @return array
      * @throws ClientExceptionInterface
      */
-    public function requestAccessToken(string $code): array
+    public function requestAccessToken(): array
     {
         $response = $this->api->http->post(
             self::OAUTH_PATH.'/token',
