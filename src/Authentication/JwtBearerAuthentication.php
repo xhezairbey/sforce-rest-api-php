@@ -2,6 +2,10 @@
 
 namespace Xhezairi\SForce\Authentication;
 
-class JwtBearerAuthentication
+class JwtBearerAuthentication extends AbstractAuthentication
 {
+    public function requestAccessToken(): array
+    {
+        // TODO: Implement requestAccessToken() method.
+    }
 }

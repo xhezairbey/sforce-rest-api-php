@@ -7,11 +7,6 @@ use Xhezairi\SForce\SForce;
 
 class UserAgentAuthentication extends AbstractAuthentication implements AuthorizationInterface
 {
-    public function requestAccessToken(): array
-    {
-        // TODO: Implement requestAccessToken() method.
-    }
-
     /**
      * @inheritDoc
      * @return string
@@ -26,5 +21,10 @@ class UserAgentAuthentication extends AbstractAuthentication implements Authoriz
 
                 ] + $options
             );
+    }
+
+    public function requestAccessToken(): array
+    {
+        // TODO: Implement requestAccessToken() method.
     }
 }

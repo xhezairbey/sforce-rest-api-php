@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xhezairi\SForce\Authentication;
 
@@ -28,6 +27,7 @@ class UserPassAuthentication extends AbstractAuthentication
                     'client_secret' => $this->api->getClientSecret(),
                     'redirect_uri'  => $this->api->getRedirectUrl(),
                     'grant_type'    => 'password',
+                    // TODO: figure out how to pass down these values
                     'username'      => $this->api->username,
                     'password'      => $this->api->password, //.$secretToken
                 ]
