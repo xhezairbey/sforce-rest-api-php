@@ -60,7 +60,7 @@ class SForce
     /**
      * @var string
      */
-    private $scope = 'api+web+refresh_token';
+    private $scope = 'api web refresh_token';
 
     /**
      * @var string
