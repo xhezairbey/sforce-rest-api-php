@@ -6,26 +6,12 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
+use Xhezairi\SForce\Exception\SalesforceAuthenticationException;
 use Xhezairi\SForce\Exception\SalesforceException;
 use Xhezairi\SForce\SForce;
 
 class WebServerAuthentication extends AbstractAuthentication implements AuthorizationInterface
 {
-    /**
-     * @var ClientInterface
-     */
-    private $httpClient;
-
-    /**
-     * @var ServerRequestFactoryInterface
-     */
-    private $httpRequest;
-
-    /**
-     * @var string[]
-     */
-    private $headers;
-
     /**
      * @param  array  $options
      * @return string
@@ -43,7 +29,6 @@ class WebServerAuthentication extends AbstractAuthentication implements Authoriz
     }
 
     /**
-     * @param string $code
      * @return array
      * @throws ClientExceptionInterface
      */
@@ -56,7 +41,7 @@ class WebServerAuthentication extends AbstractAuthentication implements Authoriz
                     'form_params' => [
                         'redirect_uri' => $this->api->getRedirectUrl(),
                         'grant_type'   => 'authorization_code',
-                        'code'         => $code,
+                        'code'         => $_GET['code'],
                     ],
                 ]
             )
@@ -84,7 +69,7 @@ class WebServerAuthentication extends AbstractAuthentication implements Authoriz
         );
 
         if ($response->getStatusCode() !== 200) {
-            throw new SalesforceException(
+            throw new SalesforceAuthenticationException(
                 "Error: call to refresh token failed with status {$response->getStatusCode()}, response: {$response->getReasonPhrase()}"
             );
         }
