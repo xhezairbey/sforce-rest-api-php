@@ -76,34 +76,4 @@ class WebServerAuthentication extends AbstractAuthentication implements Authoriz
 
         return json_decode((string)$response->getBody(), true);
     }
-
-    /**
-     * Fires a void API request to check Access Token's validity
-     */
-    public function isAccessTokenValid(): bool
-    {
-        try {
-            return 200 === $this->api->http->get($this->api->getBaseUrl())->getStatusCode();
-        } catch (ClientExceptionInterface $e) {
-            return false;
-        }
-    }
-
-    /**
-     * @param  array  $params
-     * @return array
-     */
-    private function getRequestOptions(array $params): array
-    {
-        return [
-//            RequestOptions::HEADERS     => array_merge($this->headers, $params['headers']),
-            RequestOptions::FORM_PARAMS => array_merge(
-                [
-                    'client_id'     => $this->api->getClientId(),
-                    'client_secret' => $this->api->getClientSecret(),
-                ],
-                $params['form_params']
-            ),
-        ];
-    }
 }

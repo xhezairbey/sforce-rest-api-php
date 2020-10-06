@@ -2,6 +2,8 @@
 
 namespace Xhezairi\SForce\Authentication;
 
+use GuzzleHttp\RequestOptions;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Xhezairi\SForce\Exception\SalesforceException;
@@ -45,6 +47,38 @@ abstract class AbstractAuthentication
 //            'Authorization' => 'Basic '.base64_encode($this->api->getClientId().':'.$this->api->getClientSecret()),
 //            'Content-Type'  => 'application/x-www-form-urlencoded; charset=utf-8',
 //        ];
+    }
+
+    /**
+     * @param  array  $params
+     * @return array
+     */
+    protected function getRequestOptions(array $params): array
+    {
+        return [
+            'headers'     => array_merge($this->headers, $params['headers']),
+            RequestOptions::FORM_PARAMS => array_merge(
+                [
+                    'client_id'     => $this->api->getClientId(),
+                    'client_secret' => $this->api->getClientSecret(),
+                ],
+                $params['form_params']
+            ),
+        ];
+    }
+
+    /**
+     * Zero ill intent and completely harmless API call which
+     * is intended to fail if the current Access Token has expired.
+     * @return bool
+     */
+    public function isAccessTokenValid(): bool
+    {
+        try {
+            return 200 === $this->api->http->get($this->api->getBaseUrl('userinfo'))->getStatusCode();
+        } catch (ClientExceptionInterface $e) {
+            return false;
+        }
     }
 
     /**
