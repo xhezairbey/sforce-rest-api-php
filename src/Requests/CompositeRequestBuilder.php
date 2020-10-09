@@ -12,7 +12,7 @@ class CompositeRequestBuilder
     /**
      * @var int $count
      */
-    private $count = 0;
+    private $count;
 
     /**
      * Call CompositeRequest::createBuilder over this constructor.
@@ -26,7 +26,8 @@ class CompositeRequestBuilder
 
     public function addSubRequest()
     {
-        $this->data['compositeRequest'][$this->count++] = [];
+        $this->count = !isset($this->count) ? 0 : $this->count++;
+        $this->data['compositeRequest'][$this->count] = [];
 
         return $this;
     }

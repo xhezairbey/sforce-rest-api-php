@@ -19,8 +19,6 @@ use Xhezairi\SForce\Exception\SalesforceException;
  * https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_what_is_rest_api.htm
  *
  * This class connects to the Salesforce REST API and performs actions on that API
- * @link https://github.com/jahumes/salesforce-rest-api-php-wrapper
- * @link https://github.com/bjsmasth/php-salesforce-rest-api
  */
 class SForce
 {
